@@ -1,0 +1,362 @@
+@import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+  :root {
+    /* Vue 3 Iconic Signature Palette - Light Mode */
+    --color-primary: #42b883;
+    --color-primary-hover: #33a06f;
+    --color-primary-light: #ecfdf5;
+    --color-primary-foreground: #ffffff;
+    --color-primary-glow: rgba(66, 184, 131, 0.25);
+    
+    --color-vue-green: #42b883;
+    --color-vue-dark: #35495e;
+    --color-vue-accent: #00dc82;
+
+    --color-secondary: #f1f5f9;
+    --color-secondary-hover: #334155;
+    --color-secondary-foreground: #334155;
+    
+    --color-accent: #10b981;
+    --color-accent-hover: #059669;
+    --color-accent-light: #d1fae5;
+    
+    --color-success: #10b981;
+    --color-success-hover: #059669;
+    --color-success-light: #d1fae5;
+    --color-success-foreground: #ffffff;
+    
+    --color-warning: #f59e0b;
+    --color-warning-hover: #d97706;
+    --color-warning-light: #fef3c7;
+    --color-warning-foreground: #ffffff;
+    
+    --color-danger: #f43f5e;
+    --color-danger-hover: #e11d48;
+    --color-danger-light: #ffe4e6;
+    --color-danger-foreground: #ffffff;
+    
+    --color-background: #f8fafc;
+    --color-surface: #ffffff;
+    --color-surface-elevated: #ffffff;
+    --color-card: #ffffff;
+    --color-card-hover: #f0fdf4;
+    
+    --color-sidebar: #18222d;
+    --color-sidebar-foreground: #f1f5f9;
+    --color-sidebar-muted: #94a3b8;
+    --color-sidebar-border: rgba(255, 255, 255, 0.08);
+    --color-sidebar-hover: rgba(66, 184, 131, 0.08);
+    --color-sidebar-active: #42b883;
+    
+    --color-foreground: #0f172a;
+    --color-foreground-muted: #475569;
+    --color-foreground-subtle: #94a3b8;
+    
+    --color-border: #e2e8f0;
+    --color-border-strong: #cbd5e1;
+    --color-border-focus: #42b883;
+    
+    --radius: 14px;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  [data-theme='dark'], .dark {
+    /* Vue 3 Cosmic Obsidian & Emerald Neon - Dark Mode */
+    --color-background: #090e17;
+    --color-surface: #0f1726;
+    --color-surface-elevated: #162238;
+    --color-card: #0f1726;
+    --color-card-hover: #16243d;
+    
+    --color-sidebar: #070b12;
+    --color-sidebar-foreground: #e2e8f0;
+    --color-sidebar-muted: #64748b;
+    --color-sidebar-border: rgba(255, 255, 255, 0.06);
+    --color-sidebar-hover: rgba(66, 184, 131, 0.1);
+    --color-sidebar-active: #42b883;
+    
+    --color-foreground: #f8fafc;
+    --color-foreground-muted: #94a3b8;
+    --color-foreground-subtle: #64748b;
+    
+    --color-border: #1a283e;
+    --color-border-strong: #233552;
+    --color-border-focus: #42b883;
+  }
+
+  /* Crimson Theme */
+  [data-theme='crimson'] {
+    --color-primary: #e11d48;
+    --color-primary-hover: #be123c;
+    --color-primary-light: #ffe4e6;
+    --color-primary-foreground: #ffffff;
+    --color-primary-glow: rgba(225, 29, 72, 0.25);
+    
+    --color-background: #0f0508;
+    --color-surface: #1a0a10;
+    --color-surface-elevated: #260f18;
+    --color-card: #1a0a10;
+    --color-card-hover: #2d121d;
+    
+    --color-sidebar: #0a0305;
+    --color-sidebar-foreground: #fecdd3;
+    --color-sidebar-muted: #9f1239;
+    --color-sidebar-border: rgba(225, 29, 72, 0.15);
+    --color-sidebar-hover: rgba(225, 29, 72, 0.12);
+    --color-sidebar-active: #f43f5e;
+    
+    --color-foreground: #fff1f2;
+    --color-foreground-muted: #fda4af;
+    --color-foreground-subtle: #fb7185;
+    
+    --color-border: #3b111e;
+    --color-border-strong: #4c1d2d;
+    --color-border-focus: #f43f5e;
+  }
+}
+
+/* Vue Native Animations & Transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* List Transitions */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.25s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(8px);
+}
+
+/* Modal Transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.2s ease-out;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Custom Vue Glassmorphism & Aurora Glow */
+.vue-glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark .vue-glass {
+  background: rgba(11, 17, 30, 0.82);
+}
+
+.vue-glow {
+  box-shadow: 0 0 30px -5px rgba(66, 184, 131, 0.25);
+}
+
+.vue-mesh-bg {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(66, 184, 131, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 220, 130, 0.06) 0px, transparent 40%),
+    radial-gradient(at 50% 100%, rgba(53, 73, 94, 0.05) 0px, transparent 50%);
+}
+
+.dark .vue-mesh-bg {
+  background-image: 
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(66, 184, 131, 0.12), transparent),
+    radial-gradient(at 95% 20%, rgba(0, 220, 130, 0.04) 0px, transparent 35%);
+}
+
+/* FLIP Animations for Vue TransitionGroup */
+.kanban-card-move,
+.list-move {
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.kanban-card-enter-active,
+.kanban-card-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card-enter-from,
+.kanban-card-leave-to {
+  opacity: 0;
+  transform: scale(0.92) translateY(12px);
+}
+
+.kanban-card-leave-active {
+  position: absolute;
+}
+
+/* Vue Bento Card Hover */
+.vue-bento-card {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vue-bento-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(66, 184, 131, 0.6);
+}
+
+/* =========================================================
+   CRIMSON / RED THEME COMPREHENSIVE OVERRIDES
+   ========================================================= */
+[data-theme='crimson'],
+.dark[data-theme='crimson'],
+[data-theme='crimson'] body {
+  background-color: #0b0204 !important;
+  color: #fff1f2 !important;
+}
+
+[data-theme='crimson'] .vue-mesh-bg {
+  background-image: 
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(225, 29, 72, 0.2), transparent),
+    radial-gradient(at 95% 20%, rgba(244, 63, 94, 0.08) 0px, transparent 35%) !important;
+}
+
+/* Aside & Header */
+[data-theme='crimson'] aside {
+  background-color: #0f0306 !important;
+  border-color: #3b0d18 !important;
+}
+
+[data-theme='crimson'] header {
+  background-color: rgba(15, 3, 6, 0.85) !important;
+  border-color: #3b0d18 !important;
+}
+
+[data-theme='crimson'] footer {
+  border-color: #3b0d18 !important;
+}
+
+/* Card & Surface Overrides */
+[data-theme='crimson'] .dark\:bg-\[\#070b14\],
+[data-theme='crimson'] .dark\:bg-\[\#060911\],
+[data-theme='crimson'] .dark\:bg-\[\#0a0f1d\],
+[data-theme='crimson'] .dark\:bg-\[\#0b1120\],
+[data-theme='crimson'] .dark\:bg-slate-900,
+[data-theme='crimson'] .dark\:bg-gray-900,
+[data-theme='crimson'] .dark\:bg-gray-800 {
+  background-color: #19050b !important;
+}
+
+[data-theme='crimson'] .dark\:bg-slate-800,
+[data-theme='crimson'] .dark\:bg-slate-800\/80,
+[data-theme='crimson'] .dark\:bg-slate-800\/60,
+[data-theme='crimson'] .dark\:bg-slate-800\/40,
+[data-theme='crimson'] .dark\:bg-slate-700,
+[data-theme='crimson'] .dark\:bg-gray-700 {
+  background-color: #2b0a13 !important;
+}
+
+[data-theme='crimson'] .dark\:bg-slate-900\/40,
+[data-theme='crimson'] .dark\:bg-slate-900\/60,
+[data-theme='crimson'] .dark\:bg-slate-950\/60 {
+  background-color: rgba(25, 5, 11, 0.6) !important;
+}
+
+/* Borders */
+[data-theme='crimson'] .dark\:border-slate-800,
+[data-theme='crimson'] .dark\:border-slate-800\/80,
+[data-theme='crimson'] .dark\:border-slate-800\/60,
+[data-theme='crimson'] .dark\:border-slate-700,
+[data-theme='crimson'] .dark\:border-slate-700\/80,
+[data-theme='crimson'] .dark\:border-gray-800,
+[data-theme='crimson'] .dark\:border-gray-700 {
+  border-color: #3d0e19 !important;
+}
+
+/* Emerald Accents to Crimson */
+[data-theme='crimson'] .text-emerald-600,
+[data-theme='crimson'] .text-emerald-500,
+[data-theme='crimson'] .dark\:text-emerald-400,
+[data-theme='crimson'] .text-emerald-400 {
+  color: #fb7185 !important;
+}
+
+[data-theme='crimson'] .bg-emerald-500,
+[data-theme='crimson'] .bg-emerald-600 {
+  background-color: #e11d48 !important;
+  color: #ffffff !important;
+}
+
+[data-theme='crimson'] .bg-emerald-500\/10,
+[data-theme='crimson'] .bg-emerald-500\/15,
+[data-theme='crimson'] .bg-emerald-500\/20,
+[data-theme='crimson'] .dark\:bg-emerald-950\/30,
+[data-theme='crimson'] .dark\:bg-emerald-950\/40,
+[data-theme='crimson'] .dark\:bg-emerald-900\/30,
+[data-theme='crimson'] .dark\:bg-emerald-900\/40,
+[data-theme='crimson'] .bg-emerald-50 {
+  background-color: rgba(225, 29, 72, 0.15) !important;
+  border-color: rgba(225, 29, 72, 0.3) !important;
+}
+
+[data-theme='crimson'] .border-emerald-500,
+[data-theme='crimson'] .border-emerald-500\/30,
+[data-theme='crimson'] .border-emerald-500\/20,
+[data-theme='crimson'] .border-emerald-400 {
+  border-color: rgba(244, 63, 94, 0.4) !important;
+}
+
+[data-theme='crimson'] .ring-emerald-400,
+[data-theme='crimson'] .ring-emerald-500 {
+  --tw-ring-color: #f43f5e !important;
+}
+
+/* Buttons and Gradient transformations */
+[data-theme='crimson'] .bg-gradient-to-r.from-emerald-500,
+[data-theme='crimson'] .bg-gradient-to-r.from-emerald-400 {
+  background-image: linear-gradient(to right, #e11d48, #be123c) !important;
+}
+
+[data-theme='crimson'] .shadow-emerald-500\/20,
+[data-theme='crimson'] .shadow-emerald-500\/25,
+[data-theme='crimson'] .shadow-emerald-500\/30 {
+  box-shadow: 0 10px 15px -3px rgba(225, 29, 72, 0.3) !important;
+}
+
+[data-theme='crimson'] ::-webkit-scrollbar-thumb {
+  background: rgba(225, 29, 72, 0.3);
+}
+
+[data-theme='crimson'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(225, 29, 72, 0.6);
+}
