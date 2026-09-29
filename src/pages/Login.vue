@@ -88,7 +88,7 @@ function handleLogin() {
     </div>
 
     <!-- Right Panel - Login Form -->
-    <div class="w-full lg:w-1/2 flex flex-col justify-center p-8 sm:p-12 md:p-24 bg-white dark:bg-[#0b1120] relative transition-colors duration-200">
+    <div class="w-full lg:w-1/2 flex flex-col justify-center p-5 sm:p-12 md:p-24 bg-white dark:bg-[#0b1120] relative transition-colors duration-200">
       <div class="max-w-md w-full mx-auto">
         <!-- Mobile Logo -->
         <div class="flex lg:hidden items-center space-x-2 text-2xl font-bold mb-12 text-slate-900 dark:text-white">

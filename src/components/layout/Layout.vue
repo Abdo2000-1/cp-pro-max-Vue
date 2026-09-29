@@ -19,7 +19,7 @@
       <Header @mobile-toggle="mobileOpen = !mobileOpen" />
 
       <!-- Page Content with Vue Transition -->
-      <main class="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+      <main class="flex-1 p-3 sm:p-6 md:p-8 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
         <router-view v-slot="{ Component }">
           <Transition name="page" mode="out-in">
             <component :is="Component" />

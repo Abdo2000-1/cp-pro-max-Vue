@@ -96,7 +96,7 @@
       <!-- 4. LIVE ORDERS TABLE -->
       <div v-else>
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
+          <table class="w-full min-w-[760px] text-left text-xs">
             <thead>
               <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 font-bold uppercase tracking-wider">
                 <th class="py-3.5 px-4">Order #</th>

@@ -110,7 +110,7 @@
         <Transition name="dropdown">
           <div
             v-if="notifOpen"
-            class="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-emerald-950/20 overflow-hidden z-50 flex flex-col"
+            class="absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-sm sm:w-96 sm:max-w-none rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-emerald-950/20 overflow-hidden z-50 flex flex-col"
           >
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
               <div class="flex items-center gap-2">

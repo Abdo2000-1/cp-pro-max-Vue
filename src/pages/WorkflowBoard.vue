@@ -161,7 +161,7 @@
     <!-- ========================================================================= -->
     <div
       v-if="viewMode === 'panoramic'"
-      class="w-full flex gap-2 h-[calc(100vh-270px)] min-h-[500px]"
+      class="w-full flex gap-2 h-[calc(100vh-270px)] min-h-[500px] overflow-x-auto pb-2"
     >
       <div
         v-for="col in columns"
@@ -173,7 +173,7 @@
           'flex flex-col rounded-2xl transition-all duration-300 relative select-none',
           collapsedStages[col.id]
             ? 'w-10 shrink-0 bg-slate-100 dark:bg-[#070b14]/70 border border-slate-200 dark:border-slate-800 items-center py-3'
-            : 'flex-1 min-w-0 bg-slate-50/80 dark:bg-[#070b14]/90 border border-slate-200/80 dark:border-slate-800 p-2.5',
+            : 'flex-1 min-w-[240px] md:min-w-0 bg-slate-50/80 dark:bg-[#070b14]/90 border border-slate-200/80 dark:border-slate-800 p-2.5',
           dragOverColumn === col.id
             ? 'bg-emerald-500/10 border-2 border-dashed border-emerald-500 ring-2 ring-emerald-500/20'
             : ''

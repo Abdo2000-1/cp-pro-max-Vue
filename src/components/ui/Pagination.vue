@@ -1,10 +1,10 @@
 <template>
-  <div class="flex items-center justify-between px-2 py-3 border-t border-slate-200 dark:border-slate-800 text-xs select-none">
-    <div class="text-slate-500 dark:text-slate-400">
+  <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-3 border-t border-slate-200 dark:border-slate-800 text-xs select-none">
+    <div class="text-slate-500 dark:text-slate-400 text-center sm:text-left">
       Showing <strong class="text-slate-900 dark:text-white">{{ fromIndex }}</strong> to <strong class="text-slate-900 dark:text-white">{{ toIndex }}</strong> of <strong class="text-slate-900 dark:text-white">{{ totalItems }}</strong> entries
     </div>
 
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1 flex-wrap justify-center">
       <button
         type="button"
         :disabled="currentPage <= 1"

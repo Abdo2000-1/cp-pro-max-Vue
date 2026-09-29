@@ -299,7 +299,7 @@
     </div>
 
     <!-- Recent Orders Table Preview -->
-    <div class="p-6 rounded-3xl bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="p-4 sm:p-6 rounded-3xl bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="font-bold text-base text-slate-900 dark:text-white">Recent Lab Cases</h3>
@@ -315,7 +315,7 @@
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
+        <table class="w-full min-w-[700px] text-left text-xs">
           <thead>
             <tr class="border-b border-slate-100 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
               <th class="py-3 px-3">Order #</th>

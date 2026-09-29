@@ -197,7 +197,7 @@ function exportTab() {
     </div>
 
     <!-- Tabs -->
-    <div class="flex border-b border-gray-200 dark:border-gray-800 gap-2">
+    <div class="flex border-b border-gray-200 dark:border-gray-800 gap-2 overflow-x-auto no-scrollbar pb-px">
       <button
         v-for="tab in [
           { id: 'orders', label: 'Orders Grid', count: filteredOrders.length },
@@ -208,7 +208,7 @@ function exportTab() {
         :key="tab.id"
         @click="activeTab = tab.id as GridTab; page = 1"
         :class="[
-          'flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+          'shrink-0 whitespace-nowrap flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors',
           activeTab === tab.id
             ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400'
             : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -251,7 +251,8 @@ function exportTab() {
 
     <!-- Tab 1: Orders Grid -->
     <div v-if="activeTab === 'orders'" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <table class="w-full text-left text-xs text-gray-500 dark:text-gray-400">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[700px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
             <th class="px-3.5 py-3 font-semibold">Order #</th>
@@ -306,11 +307,13 @@ function exportTab() {
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Tab 2: Patients Directory -->
     <div v-if="activeTab === 'patients'" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <table class="w-full text-left text-xs text-gray-500 dark:text-gray-400">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[700px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
             <th class="px-3.5 py-3 font-semibold">Patient Name</th>
@@ -368,11 +371,13 @@ function exportTab() {
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Tab 3: Services Catalog -->
     <div v-if="activeTab === 'services'" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <table class="w-full text-left text-xs text-gray-500 dark:text-gray-400">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[650px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
             <th class="px-3.5 py-3 font-semibold">Service Name</th>
@@ -426,11 +431,13 @@ function exportTab() {
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Tab 4: Workflow Matrix -->
     <div v-if="activeTab === 'workflow'" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <table class="w-full text-left text-xs text-gray-500 dark:text-gray-400">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[700px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
             <th class="px-2 py-3 w-8"></th>
@@ -525,6 +532,7 @@ function exportTab() {
           </template>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Pagination -->
