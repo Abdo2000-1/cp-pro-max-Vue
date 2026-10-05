@@ -331,6 +331,18 @@ export const useDentalStore = defineStore('dental', () => {
     };
   });
 
+  const toggleTheme = () => {
+    setTheme(theme.value === 'dark' ? 'light' : 'dark');
+  };
+
+  const createOrder = (orderData: any) => {
+    return addOrder(orderData);
+  };
+
+  const logout = () => {
+    localStorage.removeItem(STORAGE_PREFIX + 'token');
+  };
+
   return {
     // State
     initialized,
@@ -367,6 +379,9 @@ export const useDentalStore = defineStore('dental', () => {
     createPatient,
     createDoctor,
     updateProfile,
+    toggleTheme,
+    createOrder,
+    logout,
 
     // Getters
     getOrderById,

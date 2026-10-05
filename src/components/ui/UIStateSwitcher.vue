@@ -1,7 +1,7 @@
 <template>
   <div class="inline-flex max-w-full overflow-x-auto no-scrollbar items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/80 text-xs shadow-inner">
     <span class="text-[10px] font-bold text-slate-400 px-2 uppercase tracking-wider hidden md:inline-block shrink-0">
-      View State:
+      {{ label }}:
     </span>
 
     <button
@@ -12,7 +12,7 @@
       @click="selectState(s.id)"
       :class="[
         'flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl text-xs font-semibold transition-all duration-150 shrink-0 cursor-pointer',
-        modelValue === s.id
+        currentState === s.id
           ? `${s.activeBg} ${s.activeText} shadow-xs font-bold scale-[1.02]`
           : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50'
       ]"
@@ -25,18 +25,28 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { OrdersViewState } from '@/types';
 import { sound } from '@/utils/sound';
 
+export type UIStateType = OrdersViewState;
+
 const props = withDefaults(defineProps<{
-  modelValue: OrdersViewState;
+  modelValue?: OrdersViewState;
+  state?: OrdersViewState;
+  label?: string;
 }>(), {
-  modelValue: 'normal',
+  modelValue: undefined,
+  state: undefined,
+  label: 'View State',
 });
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: OrdersViewState): void;
+  (e: 'change', value: OrdersViewState): void;
 }>();
+
+const currentState = computed(() => props.state ?? props.modelValue ?? 'normal');
 
 const states: { id: OrdersViewState; label: string; shortLabel: string; activeBg: string; activeText: string; dotColor: string }[] = [
   { id: 'normal', label: 'Live Data', shortLabel: 'Live', activeBg: 'bg-white dark:bg-slate-700', activeText: 'text-slate-900 dark:text-white', dotColor: 'bg-emerald-500' },
@@ -47,6 +57,7 @@ const states: { id: OrdersViewState; label: string; shortLabel: string; activeBg
 
 const selectState = (val: OrdersViewState) => {
   emit('update:modelValue', val);
+  emit('change', val);
   sound.playClick(640);
 };
 </script>

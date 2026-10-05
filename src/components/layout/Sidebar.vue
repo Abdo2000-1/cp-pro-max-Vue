@@ -191,7 +191,7 @@ import {
   LayoutDashboard, Package, FolderOpen, GitBranch, ScanLine, 
   Users, Stethoscope, Building2, FileText, Receipt, RefreshCcw, 
   BarChart3, Bell, Settings, TableProperties, FormInput, 
-  ChevronLeft, ChevronRight, X 
+  ChevronLeft, ChevronRight, X, Layers, Activity
 } from 'lucide-vue-next';
 import { useDentalStore } from '@/stores/dental';
 import { sound } from '@/utils/sound';
@@ -210,6 +210,10 @@ const route = useRoute();
 const store = useDentalStore();
 
 const navItems = [
+  { icon: Layers, label: "Today's Flow", path: '/flow', badge: 'Live' },
+  { icon: BarChart3, label: 'Power BI Analytics', path: '/powerbi', badge: 'BI' },
+  { icon: FileText, label: 'Order Details', path: '/order-details' },
+  { icon: Activity, label: 'Teeth Chart', path: '/teeth-chart' },
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: Package, label: 'Orders', path: '/orders' },
   { icon: FolderOpen, label: 'Cases', path: '/cases' },
