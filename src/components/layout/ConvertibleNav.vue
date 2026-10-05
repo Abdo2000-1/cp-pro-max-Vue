@@ -182,6 +182,7 @@
     </header>
 
     <!-- ========================================== -->
+    <!-- ========================================== -->
     <!-- 2. VERTICAL SIDEBAR (LEFT OR RIGHT DOCK)    -->
     <!-- ========================================== -->
     <aside
@@ -192,23 +193,48 @@
         collapsed ? 'w-20' : 'w-64'
       ]"
     >
+      <!-- FLOATING EDGE COLLAPSE / EXPAND PILL (Super easy to click from anywhere) -->
+      <button
+        type="button"
+        @click="$emit('toggle-collapse'); sound.playClick(540)"
+        :class="[
+          'absolute top-16 z-50 w-7 h-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-500 hover:text-emerald-500 hover:border-emerald-500 cursor-pointer transition-all hover:scale-110 active:scale-90',
+          position === 'left' ? '-right-3.5' : '-left-3.5'
+        ]"
+        :title="collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'"
+      >
+        <!-- Direction-aware chevron -->
+        <component
+          :is="position === 'left'
+            ? (collapsed ? ChevronRight : ChevronLeft)
+            : (collapsed ? ChevronLeft : ChevronRight)"
+          class="w-4 h-4 stroke-[2.5]"
+        />
+      </button>
+
       <!-- Sidebar Header -->
-      <div class="h-16 flex items-center justify-between px-3.5 border-b border-slate-100 dark:border-slate-800/80 shrink-0">
+      <div
+        :class="[
+          'h-16 flex items-center border-b border-slate-100 dark:border-slate-800/80 shrink-0 px-3.5',
+          collapsed ? 'justify-center' : 'justify-between'
+        ]"
+      >
         <!-- Drag Handle & Logo -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 min-w-0">
           <div
+            v-if="!collapsed"
             draggable="true"
             @dragstart="handleDragStart"
             @dragend="handleDragEnd"
             @pointerdown="handlePointerDownDrag"
             :title="t('action.dragHandle')"
-            class="p-1.5 rounded-lg text-slate-400 hover:text-sky-500 cursor-grab active:cursor-grabbing"
+            class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-500 cursor-grab active:cursor-grabbing shrink-0"
           >
-            <GripVertical class="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <GripVertical class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
 
-          <router-link to="/flow" class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs">
+          <router-link to="/flow" class="flex items-center gap-2 min-w-0">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-slate-950 font-black text-xs shadow-xs shrink-0">
               <Layers class="w-4 h-4" />
             </div>
             <span v-if="!collapsed" class="font-black text-slate-900 dark:text-white text-sm tracking-tight truncate">
@@ -217,15 +243,15 @@
           </router-link>
         </div>
 
-        <!-- Collapse Toggle Button -->
+        <!-- Header Collapse Button (when expanded) -->
         <button
+          v-if="!collapsed"
           type="button"
-          @click="$emit('toggle-collapse')"
-          class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-          :title="collapsed ? 'Expand' : 'Collapse'"
+          @click="$emit('toggle-collapse'); sound.playClick(520)"
+          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Collapse Sidebar"
         >
-          <ChevronRight v-if="collapsed" class="w-4 h-4" />
-          <ChevronLeft v-else class="w-4 h-4" />
+          <component :is="position === 'left' ? ChevronLeft : ChevronRight" class="w-4 h-4" />
         </button>
       </div>
 
@@ -239,7 +265,7 @@
           :class="[
             'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none',
             isActiveRoute(item.path)
-              ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/30 font-black shadow-xs'
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-black shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white',
             collapsed ? 'justify-center px-0' : ''
           ]"
@@ -248,38 +274,104 @@
           <component :is="item.icon" class="w-4 h-4 shrink-0" />
           <span v-if="!collapsed" class="truncate flex-1 text-left">{{ item.label }}</span>
         </router-link>
+
+        <!-- Quick Collapse/Expand button in nav list when expanded -->
+        <button
+          v-if="!collapsed"
+          type="button"
+          @click="$emit('toggle-collapse'); sound.playClick(500)"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mt-2"
+        >
+          <span>Collapse Sidebar</span>
+          <component :is="position === 'left' ? ChevronLeft : ChevronRight" class="w-3.5 h-3.5" />
+        </button>
       </nav>
 
-      <!-- Bottom Dock Bar with Compass & Theme -->
-      <div class="p-3 border-t border-slate-100 dark:border-slate-800/80 shrink-0 space-y-2">
-        <div class="flex items-center justify-between">
-          <!-- Snap Dock Picker -->
-          <button
-            type="button"
-            @click="changePos('top')"
-            class="p-2 rounded-xl text-slate-400 hover:text-sky-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-            title="Dock to Top Navbar"
-          >
-            <PanelTopClose class="w-4 h-4 text-amber-500" />
-          </button>
+      <!-- Bottom Dock Bar & Profile Section (Carefully adapted for Collapsed vs Expanded) -->
+      <!-- A. COLLAPSED MODE: Clean, undistorted vertical stack -->
+      <div
+        v-if="collapsed"
+        class="p-2 py-3 border-t border-slate-100 dark:border-slate-800/80 shrink-0 flex flex-col items-center gap-2.5"
+      >
+        <!-- Profile Avatar (Perfect 38x38px, circular/rounded, undistorted) -->
+        <router-link
+          to="/profile"
+          class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-slate-950 font-black text-xs flex items-center justify-center shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/30 hover:scale-105 transition-all shrink-0"
+          :title="`${store.profile?.firstName || 'User'} (${store.profile?.role || 'Profile'})`"
+        >
+          {{ store.profile?.avatarInitials || 'AA' }}
+        </router-link>
 
-          <!-- Theme -->
+        <!-- Theme Toggle -->
+        <button
+          type="button"
+          @click="store.toggleTheme()"
+          class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+          title="Toggle Theme"
+        >
+          <Sun v-if="store.theme === 'dark'" class="w-4 h-4 text-amber-400" />
+          <Moon v-else class="w-4 h-4 text-slate-700" />
+        </button>
+
+        <!-- Dock to Top -->
+        <button
+          type="button"
+          @click="changePos('top')"
+          class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+          title="Dock to Top Navbar"
+        >
+          <PanelTopClose class="w-4 h-4 text-amber-500" />
+        </button>
+      </div>
+
+      <!-- B. EXPANDED MODE: Rich user profile card with info + controls -->
+      <div
+        v-else
+        class="p-3 border-t border-slate-100 dark:border-slate-800/80 shrink-0 space-y-2.5"
+      >
+        <!-- User Profile Card -->
+        <router-link
+          to="/profile"
+          class="flex items-center gap-3 p-2 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/70 dark:border-slate-800 transition-all group"
+        >
+          <div class="relative shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-slate-950 font-black text-xs flex items-center justify-center shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/30 group-hover:scale-105 transition-transform">
+              {{ store.profile?.avatarInitials || 'AA' }}
+            </div>
+            <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-extrabold text-xs text-slate-900 dark:text-white truncate group-hover:text-emerald-500 transition-colors">
+              {{ store.profile?.firstName }} {{ store.profile?.lastName }}
+            </div>
+            <div class="text-[10px] text-slate-400 truncate">
+              {{ store.profile?.role || 'Dental Specialist' }}
+            </div>
+          </div>
+          <ChevronRight class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors shrink-0" />
+        </router-link>
+
+        <!-- Quick Controls Row -->
+        <div class="flex items-center justify-between gap-1.5 text-xs">
           <button
             type="button"
             @click="store.toggleTheme()"
-            class="p-2 rounded-xl text-slate-400 hover:text-sky-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-800 transition-colors"
           >
-            <Sun v-if="store.theme === 'dark'" class="w-4 h-4 text-amber-400" />
-            <Moon v-else class="w-4 h-4 text-slate-700" />
+            <Sun v-if="store.theme === 'dark'" class="w-3.5 h-3.5 text-amber-400" />
+            <Moon v-else class="w-3.5 h-3.5 text-slate-700" />
+            <span>{{ store.theme === 'dark' ? 'Light' : 'Dark' }}</span>
           </button>
 
-          <!-- Profile -->
-          <router-link
-            to="/profile"
-            class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-bold text-[10px] flex items-center justify-center"
+          <button
+            type="button"
+            @click="changePos('top')"
+            class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-800 transition-colors"
+            title="Dock to Top Navbar"
           >
-            {{ store.profile?.avatarInitials || 'AA' }}
-          </router-link>
+            <PanelTopClose class="w-3.5 h-3.5 text-amber-500" />
+            <span>Top Dock</span>
+          </button>
         </div>
       </div>
     </aside>
