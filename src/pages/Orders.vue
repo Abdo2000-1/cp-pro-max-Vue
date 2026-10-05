@@ -23,40 +23,35 @@
       </div>
     </div>
 
-    <!-- Filters & Search Toolbar -->
-    <div class="p-4 rounded-3xl bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
-      <!-- Search -->
-      <div class="w-full md:w-80">
-        <SearchInput
-          v-model="searchQuery"
-          placeholder="Search by patient, doctor, order #..."
-        />
-      </div>
-
-      <!-- Status Tabs -->
-      <div class="flex items-center gap-1 overflow-x-auto w-full md:w-auto p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-        <button
-          v-for="tab in statusTabs"
-          :key="tab.id"
-          type="button"
-          @click="activeTab = tab.id; sound.playClick()"
-          :class="[
-            'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0',
-            activeTab === tab.id
-              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          ]"
+    <!-- Status Tabs -->
+    <div class="flex items-center gap-1 overflow-x-auto w-full p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+      <button
+        v-for="tab in statusTabs"
+        :key="tab.id"
+        type="button"
+        @click="activeTab = tab.id; sound.playClick()"
+        :class="[
+          'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0',
+          activeTab === tab.id
+            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+        ]"
+      >
+        <span>{{ tab.label }}</span>
+        <span
+          v-if="tab.count !== undefined"
+          class="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
         >
-          <span>{{ tab.label }}</span>
-          <span
-            v-if="tab.count !== undefined"
-            class="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-          >
-            {{ tab.count }}
-          </span>
-        </button>
-      </div>
+          {{ tab.count }}
+        </span>
+      </button>
     </div>
+
+    <!-- Table Tools: Search, Filters, Column Visibility -->
+    <TableTools
+      :table="table"
+      searchPlaceholder="Search by patient, doctor, order #, restoration..."
+    />
 
     <!-- Content Card -->
     <div class="rounded-3xl bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -78,14 +73,14 @@
 
       <!-- 3. EMPTY STATE SIMULATION / NO RESULTS -->
       <EmptyState
-        v-else-if="viewState === 'empty' || filteredOrders.length === 0"
+        v-else-if="viewState === 'empty' || table.filteredData.value.length === 0"
         title="No orders found"
         description="No digital lab orders match your current search or status filter."
       >
         <template #action>
           <button
             type="button"
-            @click="searchQuery = ''; activeTab = 'all'; viewState = 'normal'"
+            @click="table.resetAllFilters(); activeTab = 'all'; viewState = 'normal'"
             class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors border border-slate-300 dark:border-slate-700"
           >
             Reset Filters
@@ -99,32 +94,96 @@
           <table class="w-full min-w-[760px] text-left text-xs">
             <thead>
               <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 text-slate-400 font-bold uppercase tracking-wider">
-                <th class="py-3.5 px-4">Order #</th>
-                <th class="py-3.5 px-4">Patient</th>
-                <th class="py-3.5 px-4">Doctor / Clinic</th>
-                <th class="py-3.5 px-4">Restoration</th>
-                <th class="py-3.5 px-4">Status</th>
-                <th class="py-3.5 px-4">Priority</th>
-                <th class="py-3.5 px-4">Amount</th>
-                <th class="py-3.5 px-4">Due Date</th>
-                <th class="py-3.5 px-4 text-right">Actions</th>
+                <SortTh
+                  v-if="table.isColVisible('orderNumber')"
+                  field="orderNumber"
+                  label="Order #"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('patientName')"
+                  field="patientName"
+                  label="Patient"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('doctorName')"
+                  field="doctorName"
+                  label="Doctor / Clinic"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('restoration')"
+                  field="restoration"
+                  label="Restoration"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('status')"
+                  field="status"
+                  label="Status"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('priority')"
+                  field="priority"
+                  label="Priority"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('amount')"
+                  field="amount"
+                  label="Amount"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <SortTh
+                  v-if="table.isColVisible('dueDate')"
+                  field="dueDate"
+                  label="Due Date"
+                  :sortField="table.sortField.value"
+                  :sortDirection="table.sortDirection.value"
+                  @sort="table.handleSort"
+                  class="py-3.5 px-4"
+                />
+                <th v-if="table.isColVisible('actions')" class="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
               <tr
-                v-for="order in paginatedOrders"
+                v-for="order in table.paginatedData.value"
                 :key="order.id"
                 class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group"
               >
                 <!-- Order Number -->
-                <td class="py-3.5 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                <td v-if="table.isColVisible('orderNumber')" class="py-3.5 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
                   <router-link :to="`/orders/${order.id}`" class="hover:underline">
                     #{{ order.orderNumber }}
                   </router-link>
                 </td>
 
                 <!-- Patient -->
-                <td class="py-3.5 px-4">
+                <td v-if="table.isColVisible('patientName')" class="py-3.5 px-4">
                   <div class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                     <span>{{ order.patientName }}</span>
                     <span v-if="order.isLocked" class="text-amber-500" title="Order Locked">
@@ -135,13 +194,13 @@
                 </td>
 
                 <!-- Doctor / Clinic -->
-                <td class="py-3.5 px-4 text-slate-600 dark:text-slate-300">
+                <td v-if="table.isColVisible('doctorName')" class="py-3.5 px-4 text-slate-600 dark:text-slate-300">
                   <div class="font-semibold text-slate-900 dark:text-white">{{ order.doctorName }}</div>
                   <div class="text-[11px] text-slate-400">{{ order.clinicName }}</div>
                 </td>
 
                 <!-- Restoration & Shade -->
-                <td class="py-3.5 px-4">
+                <td v-if="table.isColVisible('restoration')" class="py-3.5 px-4">
                   <div class="font-bold text-slate-800 dark:text-slate-200">{{ order.restoration }}</div>
                   <div class="text-[11px] text-slate-400">
                     {{ order.units }} Unit(s) • Shade {{ order.shade }}
@@ -149,27 +208,27 @@
                 </td>
 
                 <!-- Status Badge -->
-                <td class="py-3.5 px-4">
+                <td v-if="table.isColVisible('status')" class="py-3.5 px-4">
                   <StatusBadge :status="order.status" size="sm" />
                 </td>
 
                 <!-- Priority Badge -->
-                <td class="py-3.5 px-4">
+                <td v-if="table.isColVisible('priority')" class="py-3.5 px-4">
                   <PriorityBadge :priority="order.priority" />
                 </td>
 
                 <!-- Amount -->
-                <td class="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                <td v-if="table.isColVisible('amount')" class="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
                   {{ formatCurrency(order.amount) }}
                 </td>
 
                 <!-- Due Date -->
-                <td class="py-3.5 px-4 font-mono text-slate-500">
+                <td v-if="table.isColVisible('dueDate')" class="py-3.5 px-4 font-mono text-slate-500">
                   {{ formatDate(order.dueDate) }}
                 </td>
 
                 <!-- Actions -->
-                <td class="py-3.5 px-4 text-right">
+                <td v-if="table.isColVisible('actions')" class="py-3.5 px-4 text-right">
                   <div class="flex items-center justify-end gap-1">
                     <router-link
                       :to="`/orders/${order.id}`"
@@ -202,9 +261,9 @@
 
         <!-- Pagination -->
         <Pagination
-          v-model:current-page="currentPage"
-          :total-items="filteredOrders.length"
-          :page-size="pageSize"
+          v-model:current-page="table.currentPage.value"
+          :total-items="table.filteredData.value.length"
+          :page-size="table.pageSize.value"
         />
       </div>
 
@@ -213,28 +272,69 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Plus, Eye, Edit3, Trash2, Lock } from 'lucide-vue-next';
 import { useDentalStore } from '@/stores/dental';
 import type { OrdersViewState } from '@/types';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import PriorityBadge from '@/components/ui/PriorityBadge.vue';
-import SearchInput from '@/components/ui/SearchInput.vue';
 import Pagination from '@/components/ui/Pagination.vue';
 import LoadingState from '@/components/ui/LoadingState.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import UIStateSwitcher from '@/components/ui/UIStateSwitcher.vue';
+import TableTools from '@/components/ui/TableTools.vue';
+import SortTh from '@/components/ui/SortTh.vue';
+import { useAdvancedTable, type ColumnConfig } from '@/composables/useAdvancedTable';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { sound } from '@/utils/sound';
 
 const store = useDentalStore();
 
-const searchQuery = ref('');
 const activeTab = ref('all');
 const viewState = ref<OrdersViewState>('normal');
-const currentPage = ref(1);
-const pageSize = 10;
+
+const ORDER_COLUMNS: ColumnConfig[] = [
+  { id: 'orderNumber', label: 'Order #', defaultVisible: true },
+  { id: 'patientName', label: 'Patient', defaultVisible: true },
+  { id: 'doctorName', label: 'Doctor / Clinic', defaultVisible: true },
+  { id: 'restoration', label: 'Restoration', defaultVisible: true },
+  { id: 'status', label: 'Status', defaultVisible: true },
+  { id: 'priority', label: 'Priority', defaultVisible: true },
+  { id: 'amount', label: 'Amount', defaultVisible: true },
+  { id: 'dueDate', label: 'Due Date', defaultVisible: true },
+  { id: 'actions', label: 'Actions', defaultVisible: true },
+];
+
+const priorityOptions = [
+  { value: 'all', label: 'All Priorities' },
+  { value: 'Urgent', label: 'Urgent' },
+  { value: 'High', label: 'High' },
+  { value: 'Normal', label: 'Normal' },
+  { value: 'Low', label: 'Low' },
+];
+
+const baseOrders = computed(() => {
+  if (activeTab.value === 'all') return store.orders;
+  return store.orders.filter(o => o.status === activeTab.value);
+});
+
+const table = useAdvancedTable({
+  data: baseOrders,
+  columns: ORDER_COLUMNS,
+  searchFields: ['orderNumber', 'patientName', 'doctorName', 'clinicName', 'restoration', 'patientId'],
+  filterConfigs: [
+    { key: 'priority', label: 'Priority', options: priorityOptions, defaultValue: 'all' }
+  ],
+  initialSortField: 'orderNumber',
+  initialSortDirection: 'desc',
+  pageSize: 10,
+});
+
+// Reset table pagination when tab changes
+watch(activeTab, () => {
+  table.currentPage.value = 1;
+});
 
 const statusTabs = computed(() => [
   { id: 'all', label: 'All Cases', count: store.orders.length },
@@ -245,32 +345,6 @@ const statusTabs = computed(() => [
   { id: 'Ready', label: 'Ready', count: store.orders.filter(o => o.status === 'Ready').length },
   { id: 'Completed', label: 'Completed', count: store.orders.filter(o => o.status === 'Completed').length },
 ]);
-
-const filteredOrders = computed(() => {
-  return store.orders.filter(o => {
-    // Status tab filter
-    if (activeTab.value !== 'all' && o.status !== activeTab.value) return false;
-
-    // Search query
-    if (searchQuery.value.trim()) {
-      const q = searchQuery.value.toLowerCase();
-      const match = 
-        o.orderNumber.toLowerCase().includes(q) ||
-        o.patientName.toLowerCase().includes(q) ||
-        o.doctorName.toLowerCase().includes(q) ||
-        o.clinicName.toLowerCase().includes(q) ||
-        o.restoration.toLowerCase().includes(q);
-      if (!match) return false;
-    }
-
-    return true;
-  });
-});
-
-const paginatedOrders = computed(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  return filteredOrders.value.slice(start, start + pageSize);
-});
 
 const deleteOrder = (id: string) => {
   if (confirm('Are you sure you want to delete this order?')) {

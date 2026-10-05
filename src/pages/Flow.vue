@@ -212,10 +212,32 @@
             <th
               v-for="col in activeVisibleColumns"
               :key="col.key"
+              @click="handleSort(col.key)"
               :style="{ width: getColWidth(col) }"
-              :class="['py-2.5 px-1.5 truncate', col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left']"
+              :class="[
+                'py-2.5 px-1.5 truncate cursor-pointer select-none transition-colors hover:bg-slate-200/80 dark:hover:bg-slate-800',
+                col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left',
+                sortCol === col.key ? 'text-emerald-600 dark:text-emerald-400 font-black' : ''
+              ]"
+              :title="`Click to sort by ${col.label} (Ascending / Descending)`"
             >
-              {{ col.label }}
+              <div :class="['inline-flex items-center gap-1 w-full', col.align === 'center' ? 'justify-center' : col.align === 'right' ? 'justify-end' : 'justify-start']">
+                <span class="truncate">{{ col.label }}</span>
+                <span class="shrink-0 inline-flex">
+                  <ArrowUp
+                    v-if="sortCol === col.key && sortDir === 'asc'"
+                    class="w-3 h-3 text-emerald-500"
+                  />
+                  <ArrowDown
+                    v-else-if="sortCol === col.key && sortDir === 'desc'"
+                    class="w-3 h-3 text-emerald-500"
+                  />
+                  <ArrowUpDown
+                    v-else
+                    class="w-2.5 h-2.5 text-slate-400 opacity-40 hover:opacity-100"
+                  />
+                </span>
+              </div>
             </th>
           </tr>
         </thead>
@@ -591,7 +613,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Layers, Search, SlidersHorizontal, ChevronDown, ChevronUp, ChevronRight,
-  Zap, Clock, X, Columns, ShoppingCart, MoreHorizontal, ExternalLink
+  Zap, Clock, X, Columns, ShoppingCart, MoreHorizontal, ExternalLink,
+  ArrowUp, ArrowDown, ArrowUpDown
 } from 'lucide-vue-next';
 import { MASTER_WORKFLOW_ORDERS, type MasterWorkflowOrder, type SubServiceItem } from '@/data/flowMockData';
 import { sound } from '@/utils/sound';
@@ -730,10 +753,23 @@ const setAllServices = (val: boolean) => {
   sound.playClick(val ? 750 : 400);
 };
 
-// Search & Pagination
+// Search & Pagination & Sorting
 const searchTerm = ref('');
 const currentPage = ref(1);
 const pageSize = ref(12);
+
+const sortCol = ref<string>('');
+const sortDir = ref<'asc' | 'desc'>('asc');
+
+const handleSort = (key: string) => {
+  if (sortCol.value === key) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol.value = key;
+    sortDir.value = 'asc';
+  }
+  sound.playClick(500);
+};
 
 // Accordion Expand State
 const expandedOrders = ref<Set<string>>(new Set());
@@ -758,7 +794,7 @@ const toggleAllRows = () => {
 
 // Filtered Orders Logic
 const filteredOrders = computed(() => {
-  return MASTER_WORKFLOW_ORDERS.filter(order => {
+  let result = MASTER_WORKFLOW_ORDERS.filter(order => {
     // 1. Text Search
     if (searchTerm.value.trim()) {
       const q = searchTerm.value.toLowerCase();
@@ -789,6 +825,35 @@ const filteredOrders = computed(() => {
 
     return order.services.some(s => activeCodes.has(s.typeCode));
   });
+
+  if (sortCol.value) {
+    const col = sortCol.value;
+    const dirMult = sortDir.value === 'asc' ? 1 : -1;
+    result = [...result].sort((a: any, b: any) => {
+      let valA: any = a[col];
+      let valB: any = b[col];
+
+      if (col === 'tl') {
+        valA = a.orderNum;
+        valB = b.orderNum;
+      } else if (col === 'doctor') {
+        valA = a.doctorName;
+        valB = b.doctorName;
+      } else if (col === 'patient') {
+        valA = a.patientName;
+        valB = b.patientName;
+      }
+
+      if (valA === undefined || valA === null) return 1;
+      if (valB === undefined || valB === null) return -1;
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return (valA - valB) * dirMult;
+      }
+      return String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: 'base' }) * dirMult;
+    });
+  }
+
+  return result;
 });
 
 const paginatedOrders = computed(() => {

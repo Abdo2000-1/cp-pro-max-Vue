@@ -17,6 +17,7 @@ import Select from '@/components/ui/Select.vue';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import PriorityBadge from '@/components/ui/PriorityBadge.vue';
 import Pagination from '@/components/ui/Pagination.vue';
+import SortTh from '@/components/ui/SortTh.vue';
 import { formatDate } from '@/utils/format';
 import { useDentalStore } from '@/stores/dental';
 
@@ -53,6 +54,34 @@ const expandedWorkflows = ref<Record<string, boolean>>({ 'ord-1': true });
 const page = ref(1);
 const pageSize = 8;
 
+const sortField = ref<string>('');
+const sortDirection = ref<'asc' | 'desc'>('asc');
+
+function handleSort(field: string) {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDirection.value = 'asc';
+  }
+}
+
+function sortList<T>(list: T[]): T[] {
+  if (!sortField.value) return list;
+  const field = sortField.value;
+  const dirMultiplier = sortDirection.value === 'asc' ? 1 : -1;
+  return [...list].sort((a: any, b: any) => {
+    const valA = a[field];
+    const valB = b[field];
+    if (valA === undefined || valA === null) return 1;
+    if (valB === undefined || valB === null) return -1;
+    if (typeof valA === 'number' && typeof valB === 'number') {
+      return (valA - valB) * dirMultiplier;
+    }
+    return String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: 'base' }) * dirMultiplier;
+  });
+}
+
 const orders = computed(() => dentalStore.getOrders());
 const patients = computed(() => dentalStore.getPatients());
 
@@ -64,7 +93,7 @@ const attentionCount = computed(() => orders.value.filter((o) => o.status === 'R
 
 // Filter Orders
 const filteredOrders = computed(() => {
-  return orders.value.filter((o) => {
+  const list = orders.value.filter((o) => {
     const term = searchTerm.value.toLowerCase();
     const matchesSearch = 
       o.orderNumber.toLowerCase().includes(term) ||
@@ -74,11 +103,12 @@ const filteredOrders = computed(() => {
     const matchesStatus = statusFilter.value === 'all' || o.status === statusFilter.value;
     return matchesSearch && matchesStatus;
   });
+  return sortList(list);
 });
 
 // Filter Patients
 const filteredPatients = computed(() => {
-  return patients.value.filter((p) => {
+  const list = patients.value.filter((p) => {
     const term = searchTerm.value.toLowerCase();
     const matchesSearch = 
       p.name.toLowerCase().includes(term) ||
@@ -88,11 +118,12 @@ const filteredPatients = computed(() => {
     const matchesStatus = statusFilter.value === 'all' || p.status === statusFilter.value;
     return matchesSearch && matchesStatus;
   });
+  return sortList(list);
 });
 
 // Filter Services
 const filteredServices = computed(() => {
-  return SERVICES_DATA.filter((s) => {
+  const list = SERVICES_DATA.filter((s) => {
     const term = searchTerm.value.toLowerCase();
     const matchesSearch = 
       s.serviceName.toLowerCase().includes(term) ||
@@ -101,6 +132,7 @@ const filteredServices = computed(() => {
     const matchesStatus = statusFilter.value === 'all' || s.status === statusFilter.value;
     return matchesSearch && matchesStatus;
   });
+  return sortList(list);
 });
 
 function toggleWorkflowExpand(orderId: string) {
@@ -255,13 +287,13 @@ function exportTab() {
         <table class="w-full min-w-[700px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
-            <th class="px-3.5 py-3 font-semibold">Order #</th>
-            <th class="px-3.5 py-3 font-semibold">Patient</th>
-            <th class="px-3.5 py-3 font-semibold hidden md:table-cell">Doctor & Clinic</th>
-            <th class="px-3.5 py-3 font-semibold hidden sm:table-cell">Service</th>
-            <th class="px-3.5 py-3 font-semibold">Stage</th>
-            <th class="px-3.5 py-3 font-semibold hidden sm:table-cell">Priority</th>
-            <th class="px-3.5 py-3 font-semibold hidden lg:table-cell">Due Date</th>
+            <SortTh field="orderNumber" label="Order #" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="patientName" label="Patient" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="doctorName" label="Doctor & Clinic" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden md:table-cell" />
+            <SortTh field="restoration" label="Service" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden sm:table-cell" />
+            <SortTh field="status" label="Stage" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="priority" label="Priority" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden sm:table-cell" />
+            <SortTh field="dueDate" label="Due Date" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden lg:table-cell" />
             <th class="px-3.5 py-3 text-right font-semibold">Actions</th>
           </tr>
         </thead>
@@ -316,12 +348,12 @@ function exportTab() {
         <table class="w-full min-w-[700px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
-            <th class="px-3.5 py-3 font-semibold">Patient Name</th>
-            <th class="px-3.5 py-3 font-semibold hidden sm:table-cell">Doctor</th>
-            <th class="px-3.5 py-3 font-semibold hidden md:table-cell">Clinic</th>
-            <th class="px-3.5 py-3 font-semibold hidden lg:table-cell">Contact</th>
-            <th class="px-3.5 py-3 font-semibold">Status</th>
-            <th class="px-3.5 py-3 font-semibold hidden sm:table-cell">Orders</th>
+            <SortTh field="name" label="Patient Name" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="doctorName" label="Doctor" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden sm:table-cell" />
+            <SortTh field="clinicName" label="Clinic" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden md:table-cell" />
+            <SortTh field="email" label="Contact" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden lg:table-cell" />
+            <SortTh field="status" label="Status" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="ordersCount" label="Orders" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden sm:table-cell" />
             <th class="px-3.5 py-3 text-right font-semibold">Actions</th>
           </tr>
         </thead>
@@ -380,12 +412,12 @@ function exportTab() {
         <table class="w-full min-w-[650px] text-left text-xs text-gray-500 dark:text-gray-400">
         <thead class="text-[11px] uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
           <tr>
-            <th class="px-3.5 py-3 font-semibold">Service Name</th>
-            <th class="px-3.5 py-3 font-semibold hidden sm:table-cell">Category</th>
-            <th class="px-3.5 py-3 font-semibold">Active</th>
-            <th class="px-3.5 py-3 font-semibold text-emerald-600">Done</th>
-            <th class="px-3.5 py-3 font-semibold hidden md:table-cell">Utilization</th>
-            <th class="px-3.5 py-3 font-semibold">Status</th>
+            <SortTh field="serviceName" label="Service Name" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="category" label="Category" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden sm:table-cell" />
+            <SortTh field="orders" label="Active" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
+            <SortTh field="completedToday" label="Done" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 text-emerald-600" />
+            <SortTh field="utilization" label="Utilization" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3 hidden md:table-cell" />
+            <SortTh field="status" label="Status" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="px-3.5 py-3" />
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">

@@ -156,20 +156,20 @@
           <table class="w-full text-left text-xs border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase select-none">
-                <th class="py-3 px-3 w-10">#</th>
-                <th class="py-3 px-3 w-24">Order ID</th>
-                <th class="py-3 px-3 w-40">Scan Center</th>
-                <th class="py-3 px-3 w-40">Doctor</th>
-                <th class="py-3 px-3 w-40">Patient Name</th>
+                <SortTh field="serial" label="#" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-10" />
+                <SortTh field="orderId" label="Order ID" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-24" />
+                <SortTh field="scanCenter" label="Scan Center" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-40" />
+                <SortTh field="doctor" label="Doctor" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-40" />
+                <SortTh field="patientName" label="Patient Name" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-40" />
                 <th class="py-3 px-3 text-center w-14">Max.</th>
                 <th class="py-3 px-3 text-center w-14">Mand.</th>
-                <th class="py-3 px-3 w-20">Cost</th>
-                <th class="py-3 px-3 w-32">Received</th>
-                <th class="py-3 px-3 w-32">Sent Time</th>
-                <th class="py-3 px-3 w-28">Operator</th>
-                <th class="py-3 px-3 w-24">Vouchers</th>
-                <th class="py-3 px-3 w-24">Archive</th>
-                <th class="py-3 px-3 text-right w-24">Charged</th>
+                <SortTh field="cost" label="Cost" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-20" />
+                <SortTh field="receivedTime" label="Received" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-32" />
+                <SortTh field="sentTime" label="Sent Time" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-32" />
+                <SortTh field="operator" label="Operator" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-28" />
+                <SortTh field="voucher" label="Vouchers" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-24" />
+                <SortTh field="archiveDate" label="Archive" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" class="py-3 px-3 w-24" />
+                <SortTh field="chargeTime" label="Charged" :sortField="sortField" :sortDirection="sortDirection" @sort="handleSort" align="right" class="py-3 px-3 w-24" />
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -220,6 +220,19 @@ import UIStateSwitcher, { type UIStateType } from '@/components/ui/UIStateSwitch
 import LoadingState from '@/components/ui/LoadingState.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
+import SortTh from '@/components/ui/SortTh.vue';
+
+const sortField = ref<string>('');
+const sortDirection = ref<'asc' | 'desc'>('asc');
+
+function handleSort(field: string) {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDirection.value = 'asc';
+  }
+}
 
 interface Task47Row {
   serial: number;
@@ -254,7 +267,7 @@ const toDate = ref('2026-10-03');
 const search = ref('');
 
 const filteredRows = computed(() => {
-  return SAMPLE_TASK47_ROWS.filter((r) => {
+  let result = SAMPLE_TASK47_ROWS.filter((r) => {
     if (selectedOperator.value !== '-1' && !r.operator.includes(selectedOperator.value)) {
       return false;
     }
@@ -269,6 +282,23 @@ const filteredRows = computed(() => {
     }
     return true;
   });
+
+  if (sortField.value) {
+    const field = sortField.value;
+    const dirMult = sortDirection.value === 'asc' ? 1 : -1;
+    result = [...result].sort((a: any, b: any) => {
+      const valA = a[field];
+      const valB = b[field];
+      if (valA === undefined || valA === null) return 1;
+      if (valB === undefined || valB === null) return -1;
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return (valA - valB) * dirMult;
+      }
+      return String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: 'base' }) * dirMult;
+    });
+  }
+
+  return result;
 });
 
 const totalCost = computed(() => filteredRows.value.reduce((acc, r) => acc + r.cost, 0));

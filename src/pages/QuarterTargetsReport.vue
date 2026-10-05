@@ -295,13 +295,13 @@
           <table class="w-full text-left text-xs border-collapse">
             <thead>
               <tr class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <th class="p-3 pl-4">Account / Clinic Name</th>
-                <th class="p-3 text-right">Jan Orders</th>
-                <th class="p-3 text-right">Feb Orders</th>
-                <th class="p-3 text-right">Mar Orders</th>
-                <th class="p-3 text-right">Total Q1 Cases</th>
-                <th class="p-3 text-right">Gross Billing</th>
-                <th class="p-3 text-center">Quota Met</th>
+                <SortTh field="client" label="Account / Clinic Name" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" class="p-3 pl-4" />
+                <SortTh field="janOrders" label="Jan Orders" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" align="right" class="p-3" />
+                <SortTh field="febOrders" label="Feb Orders" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" align="right" class="p-3" />
+                <SortTh field="marOrders" label="Mar Orders" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" align="right" class="p-3" />
+                <SortTh field="totalOrders" label="Total Q1 Cases" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" align="right" class="p-3" />
+                <SortTh field="totalRev" label="Gross Billing" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" align="right" class="p-3" />
+                <SortTh field="quotaMet" label="Quota Met" :sortField="clientSortField" :sortDirection="clientSortDirection" @sort="handleClientSort" align="center" class="p-3" />
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
@@ -417,12 +417,25 @@ import {
   SlidersHorizontal, RefreshCw, Filter, ShieldCheck, PieChart as PieChartIcon,
   Building2, Search
 } from 'lucide-vue-next';
+import SortTh from '@/components/ui/SortTh.vue';
 import { sound } from '@/utils/sound';
 
 const activeView = ref<'dashboard' | 'matrix' | 'powerbi' | 'config'>('dashboard');
 const isRefreshing = ref(false);
 const searchQuery = ref('');
 const selectedQuarter = ref<'all' | 'Q1' | 'Q2' | 'Q3' | 'Q4'>('all');
+
+const clientSortField = ref<string>('');
+const clientSortDirection = ref<'asc' | 'desc'>('asc');
+
+function handleClientSort(field: string) {
+  if (clientSortField.value === field) {
+    clientSortDirection.value = clientSortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    clientSortField.value = field;
+    clientSortDirection.value = 'asc';
+  }
+}
 
 const powerBiEmbedUrl = ref(
   'https://app.powerbi.com/view?r=eyJrIjoiNTRjMzI0MmQtNTA3YS00N2MwLWI0ZTctMGEyOGUwOGI0OTRhIiwidCI6IjI1ZDIwZjU1LWIxMGMtNDk5MS1hMTJlLWRlOWZkZDA2YTY0MCIsImMiOjZ9'
@@ -549,9 +562,38 @@ const currentQuarterStats = computed(() => {
 });
 
 const filteredClients = computed(() => {
-  return TOP_CLIENT_REPORTS.filter((c) =>
+  let result = TOP_CLIENT_REPORTS.filter((c) =>
     c.client.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
+
+  if (clientSortField.value) {
+    const field = clientSortField.value;
+    const dirMult = clientSortDirection.value === 'asc' ? 1 : -1;
+    result = [...result].sort((a: any, b: any) => {
+      let valA: any = a[field];
+      let valB: any = b[field];
+
+      if (field === 'janOrders') {
+        valA = a.jan.orders;
+        valB = b.jan.orders;
+      } else if (field === 'febOrders') {
+        valA = a.feb.orders;
+        valB = b.feb.orders;
+      } else if (field === 'marOrders') {
+        valA = a.mar.orders;
+        valB = b.mar.orders;
+      }
+
+      if (valA === undefined || valA === null) return 1;
+      if (valB === undefined || valB === null) return -1;
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return (valA - valB) * dirMult;
+      }
+      return String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: 'base' }) * dirMult;
+    });
+  }
+
+  return result;
 });
 
 const handleRefresh = () => {
